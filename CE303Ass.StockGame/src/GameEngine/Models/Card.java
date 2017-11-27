@@ -46,6 +46,14 @@ public class Card implements Serializable
     }
 
     /**
+     * Getter for votes. Used for copying.
+     * @return
+     */
+    public int getVotes() {
+        return votes;
+    }
+
+    /**
      * Checks whether the card is active or has
      * already been resolved.
      * @return - is card active

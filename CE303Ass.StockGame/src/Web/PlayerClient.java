@@ -18,8 +18,6 @@ public class PlayerClient implements PlayerConnection
     @WebServiceRef(wsdlLocation = "http://localhost:8080/Web/game?wsdl")
     static GameState gameConn;
 
-
-
     /** The name of the player.*/
     private String name;
 

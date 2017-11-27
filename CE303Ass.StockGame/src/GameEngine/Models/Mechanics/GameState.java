@@ -32,6 +32,11 @@ public class GameState implements Serializable, GameConnection
     private ArrayList<Bot> bots =  new ArrayList<>();
     /** The round variable. Remembers which turn the game is at. */
     private int round;
+    /** The maximum number of playable rounds. Default = 5 */
+    private int maxRounds = 5;
+
+    /** SocketName for the player name belonging to the socket. */
+    private String socketName;
 
     /**
      * Basic initialiser.
@@ -72,7 +77,7 @@ public class GameState implements Serializable, GameConnection
     public boolean addPlayer(String name)
     {
         Player player = new Player(name);
-        if (players.get(name)!=null)
+        if (players.get(name)==null)
         {
             players.put(name, player);
             return true;
@@ -150,6 +155,16 @@ public class GameState implements Serializable, GameConnection
     }
 
     /**
+     * {@inheritDoc}
+     * @return
+     */
+    public boolean isNotFinished()
+    {
+        if(this.round < maxRounds) return true;
+        else return false;
+    }
+
+    /**
      * Asks if enough players have joined.
      * @return - true if yes, false otherwise.
      */
@@ -178,4 +193,11 @@ public class GameState implements Serializable, GameConnection
         }
     }
 
+    public void setSocketName(String socketName) {
+        this.socketName = socketName;
+    }
+
+    public String getSocketName() {
+        return socketName;
+    }
 }

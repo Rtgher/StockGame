@@ -10,6 +10,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.rmi.UnexpectedException;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * The Game Connection interface.
@@ -30,11 +31,16 @@ public interface GameConnection
     boolean isNotFinished(@WebParam int maxRounds );
 
     @WebMethod
+    boolean isNotFinished();
+
+    @WebMethod
     boolean isFull();
 
     @WebMethod
     Player getPlayerByName(@WebParam String name);
 
+    @WebMethod
+    Map<String, Player> getPlayers();
     /** Creates and returns a new GameState. */
     @WebMethod
     static GameState startNewGame(int nrPlayers, int nrBots)
