@@ -4,7 +4,9 @@ import GameEngine.Models.Bot;
 import GameEngine.Models.Card;
 import GameEngine.Models.Company;
 import GameEngine.Models.Player;
+import Web.GameConnection;
 
+import javax.jws.WebService;
 import java.io.Serializable;
 import java.rmi.UnexpectedException;
 import java.util.ArrayList;
@@ -17,10 +19,12 @@ import java.util.Map;
  * This is the class that actually
  * holds all the information of the game.
  */
-public class GameState implements Serializable
+@WebService(endpointInterface="Web.GameConnection")
+public class GameState implements Serializable, GameConnection
 {
     /** The list containing the players in the game. */
     private Map<String, Player> players = new HashMap<>();
+    private List<Player> playersActed = new ArrayList<>();
     private int nrPlayers = 0;
     /** The list containing the companies in play. */
     private ArrayList<Company> companies = new ArrayList<>();
@@ -49,6 +53,7 @@ public class GameState implements Serializable
         {
             bots.add(new Bot());
         }
+        System.out.println("Game started.");
     }
 
     /**
@@ -62,13 +67,57 @@ public class GameState implements Serializable
     /**
      * Allows another player to join the session.
      * @param name - the name of the player.
+     * @return true if operation successfull. False otherwise.
      */
-    public void addPlayer(String name)
+    public boolean addPlayer(String name)
     {
         Player player = new Player(name);
-        players.put(name, player);
+        if (players.get(name)!=null)
+        {
+            players.put(name, player);
+            return true;
+        }else return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param name - the name of the player who acted.
+     */
+    @Override
+    public void playerActed(String name) throws UnexpectedException
+    {
+        Player playerWhoActed = players.get(name);
+        playersActed.add(playerWhoActed);
+        resolveRound();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param companyName
+     * @param vote
+     */
+    @Override
+    public void voteCard(String companyName, int vote)
+    {
+        for (Company company : companies)
+        {
+            if(company.getName().equals(companyName))
+            {
+                company.getTopCard().votes(vote);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param name - the name of the player.
+     * @param player - the player object.
+     */
+    @Override
+    public void tradeStock(String name, Player player)
+    {
+        players.put(name, player);
+    }
 
     /**
      * Returns the specific player by name.
@@ -109,19 +158,22 @@ public class GameState implements Serializable
         return players.size() == nrPlayers;
     }
 
-
     /**
      * Resolves teh current round, and progresses the game.
      */
     public void resolveRound() throws UnexpectedException
     {
-        round ++;
-        for (Bot bot : bots) bot.act(companies); //allows the bots to act.
-        for (Company company : companies)
+        if(playersActed.size() == players.size())
         {
-            if(!company.isDeckEmpty())
+            round ++;
+            playersActed = new ArrayList<>();
+            for (Bot bot : bots) bot.act(companies); //allows the bots to act.
+            for (Company company : companies)
             {
-                company.resolveCard(company.getTopCard());
+                if(!company.isDeckEmpty())
+                {
+                    company.resolveCard(company.getTopCard());
+                }
             }
         }
     }

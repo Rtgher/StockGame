@@ -1,11 +1,9 @@
 package Web;
 
 import GameEngine.Models.Mechanics.GameState;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import GameEngine.Models.Player;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
+import javax.xml.ws.WebServiceRef;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +14,6 @@ import java.util.List;
  * The Server the game runs on.
  * Will accept both Socket and Webservice connections.
  */
-@WebService(name = "StockGame")
 public class GameServer
 {
     /** The Port that the game will run on. */
@@ -24,15 +21,14 @@ public class GameServer
     /** The instance of the Server Socket for bots to connect to. */
     ServerSocket serverSocket;
     /** The game instance. */
-    GameState game;
-    /** A list containing all connections for the game. */
-    List<GameConnection> connectionList =  new ArrayList();
+    @WebServiceRef(wsdlLocation = "http://localhost:8080/Web/game?wsdl")
+    GameConnection game;
     /** The list containing the player names */
     ArrayList<String> playerNames;
     /** The number of players waited for. */
     int nrPlayers = 0;
     int nrBots = 0;
-    /** Bool that says whether the saerver has a game running or not. */
+    /** Bool that says whether the server has a game running or not. */
     boolean isRunning = false;
 
     /**
@@ -41,6 +37,7 @@ public class GameServer
     public GameServer() throws IOException
     {
         serverSocket = new ServerSocket(PORT);
+
     }
 
     /**
@@ -60,14 +57,18 @@ public class GameServer
         {
             Socket socket = serverSocket.accept();
             System.out.println("Client connected.");
+            if(game.isFull())
+            {
+                //start game;
+            }
         }
     }
     /**
      * Starts a new game.
      * */
-    @WebMethod
-    public void startNewGame(@WebParam(name="myName") String myName, @WebParam(name = "nrPlayers") int nrPlayers, @WebParam(name = "nrBots") int nrBots)
+    public void startNewGame( String myName, int nrPlayers, int nrBots)
     {
+        game = new GameState(nrPlayers, nrBots);
         playerNames = new ArrayList<>();
         playerNames.add(myName);
         this.nrPlayers = nrPlayers;
@@ -85,20 +86,11 @@ public class GameServer
      * @param name -  the name of the player
      * @return - true if connected successfully, false otherwise.
      */
-    @WebMethod
-    public boolean connect(@WebParam(name = "name") String name)
+    public boolean connect(String name)
     {
         if(!isRunning)return  false;
         game.addPlayer(name);
         return true;
     }
 
-
-    //////////////EXAMPLE METHOD ///////////////////////////////
-    // The method element in the XML will now be SayHello
-    @WebMethod(operationName="SayHello")
-    // @WebParam will rename the input from arg0 to name
-    public String sayHello(@WebParam(name="name") String name){
-        return "Hello " + name + "!";
-    }
 }
