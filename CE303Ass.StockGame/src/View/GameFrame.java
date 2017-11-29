@@ -12,15 +12,7 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
-/**
- * Created by Dj eXu on 27-Nov-17.
- */
-
-
-
 public class GameFrame extends JFrame implements ActionListener
-
-
 {
 
 
