@@ -27,7 +27,22 @@ public class Bot extends Player
      */
     public void act(List<Company> companies)
     {
-        throw new NotImplementedException(); // standin
+        for(Company company: companies)
+        {
+            if(company.getStockValue() > 100)
+            {
+                if( getStockForCompany(company) > 0 )
+                modifyStock(company, -1);
+            }else
+                if(company.getStockValue()<100)
+                {
+                    if(getStockForCompany(company)<8)
+                        modifyStock(company,1);
+                }
+        }
+        //vote randomly.
+        companies.get(new Random().nextInt(5)).getTopCard().votes(1);
+        companies.get(new Random().nextInt(5)).getTopCard().votes(-1);
     }
 
 

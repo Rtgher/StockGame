@@ -57,4 +57,12 @@ public interface PlayerConnection
      * @return Player player - the player obj associated with this obj.
      */
     Player getPlayer();
+
+    /**
+     * allows the player to trade stock.
+     * @param name
+     * @param player
+     */
+    void tradeStock(String name, Player player);
+
 }

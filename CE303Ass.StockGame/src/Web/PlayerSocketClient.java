@@ -3,6 +3,8 @@ package Web;
 import GameEngine.Models.Company;
 import GameEngine.Models.Mechanics.GameState;
 import GameEngine.Models.Player;
+import javafx.scene.control.Alert;
+import org.omg.CORBA.Request;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,6 +13,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.UnexpectedException;
 import java.util.List;
+import java.util.Random;
 
 /**
  * A player that connects via Sockets.
@@ -19,6 +22,8 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
 {
     /** The Host string */
     public static final String HOST = "localhost";
+    /** A string constant to use when player finished the turn */
+    public static final String FINISHED = "FINISH";
 
     private Socket server;
 
@@ -29,7 +34,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     private int actualVotes = 0;
     //Object input stream.
     private ObjectInputStream fromServer;
-    private ObjectOutputStream toServer;
+    private  ObjectOutputStream toServer;
 
 
 
@@ -39,11 +44,12 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     public PlayerSocketClient()
     {
         try {
+            setName("Test"+new Random().nextInt(100));
             server = new Socket(HOST, GameServer.PORT);
             fromServer = new ObjectInputStream(server.getInputStream());
             toServer = new ObjectOutputStream(server.getOutputStream());
-            //gameConn = getGameState();
-        } catch (IOException io) {
+        } catch (IOException io)
+        {
             System.out.println("Failed to connect to server. Please check if server is running.");
             return;
         }
@@ -56,11 +62,13 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void joinGame() throws ConnectException
     {
-        getGameState();
-        boolean connected = gameConn.addPlayer(name);
-        if(!connected)
-            throw new ConnectException("Could not connect to WebService. Try connecting with a different name.");
-        sendGameState();
+        GameRequest request =  new GameRequest(RequestType.JOIN_GAME);
+        request.setName(name);
+        sendRequest(request);
+        while(gameConn == null)
+        {
+            getGameState();
+        }
     }
 
     /**
@@ -70,7 +78,11 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     {
         if(actualVotes <= MAX_VOTES){
             actualVotes ++;
-            gameConn.voteCard(companyName, vote);
+            GameRequest request = new GameRequest(RequestType.VOTE);
+            request.setName(name);
+            request.setCompanyName(companyName);
+            request.setVote(vote);
+            sendRequest(request);
         }
         else return;// do nothing if can't vote anymore.
     }
@@ -88,16 +100,10 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void playerActed()
     {
-        try {
-            gameConn.playerActed(name);
-            sendGameState();
-        }
-        catch(UnexpectedException ue)
-        {
-            //print the unexpected exception.
-            ue.printStackTrace();
-        }
-
+        GameRequest request = new GameRequest(RequestType.NOTIFY);
+        request.setName(name);
+        request.setMessage(FINISHED);
+        sendRequest(request);
     }
 
     /**
@@ -113,8 +119,12 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void createGame(int nrPlayers, int nrBots)
     {
-        gameConn = GameConnection.startNewGame(nrPlayers,nrBots);
-        sendGameState();
+        GameRequest request =  new GameRequest(RequestType.START_GAME);
+        request.setNrBots(nrBots);
+        request.setNrPlayers(nrPlayers);
+        request.setName(name);
+
+        sendRequest(request);
     }
 
 
@@ -133,11 +143,11 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     {
         while(gameConn.isNotFinished())
         {
-            //do game logic.
-            //setName
-            //create(orjoin)game
-            //
+            getGameState();
         }
+
+        new Alert(Alert.AlertType.INFORMATION, "Game Over.");
+
     }
 
     /**
@@ -149,8 +159,10 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         try
         {
             gameConn = (GameState)fromServer.readObject();
-            if(gameConn!= null)
+            if(gameConn != null) {
                 gameConn.setSocketName(name);
+
+            }
             else
             {
                 System.out.println("Asked for connection when no game was started.");
@@ -169,24 +181,34 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     }
 
     /**
+     * {@inheritDoc}
+     * @param name
+     * @param player
+     */
+    @Override
+    public void tradeStock(String name, Player player)
+    {
+        GameRequest request = new GameRequest(RequestType.TRADE);
+        request.setName(name);
+        request.setPlayer(player);
+    }
+
+    /**
      * Call this method to update the server game state.
      */
-    public void sendGameState()
+    public void sendRequest(GameRequest request)
     {
-        try{
-            toServer.writeObject(gameConn);
+        try
+        {
+            System.out.println("Sending a "+request.getType()+" request to server.");
+
+            toServer.writeObject(request);
+
         }catch (IOException io)
         {
             System.out.println("Caught IO exception while writing GameState to server.");
             io.printStackTrace();
         }
-    }
-
-
-
-    public static void main(String[] args)
-    {
-        PlayerSocketClient client = new PlayerSocketClient();
     }
 
 }

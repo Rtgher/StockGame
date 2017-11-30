@@ -2,7 +2,7 @@ package Web;
 
 import GameEngine.Models.Company;
 import GameEngine.Models.Mechanics.GameState;
-import GameEngine.Models.Player;
+import org.omg.CORBA.Request;
 
 import javax.xml.ws.WebServiceRef;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class GameServer
     ServerSocket serverSocket;
     /** The game instance. */
     @WebServiceRef(wsdlLocation = "http://localhost:8080/Web/game?wsdl")
-    GameConnection game;
+    public GameConnection game;
     /** The list containing the player names */
     ArrayList<String> playerNames;
     /** The number of players waited for. */
@@ -35,9 +35,10 @@ public class GameServer
     int nrBots = 0;
     /** Bool that says whether the server has a game running or not. */
     boolean isRunning = false;
-    private List<Socket> clientList;
-    private ObjectOutputStream toClient;
-    private ObjectInputStream fromClient;
+    private List<SocketConnection> clientList;
+    private List<Thread> connections = new ArrayList<>();
+
+
 
     /**
      * Initialiser.
@@ -69,87 +70,34 @@ public class GameServer
     /** Starts the game. */
     public void play() throws IOException, ClassNotFoundException
     {
+
         while (true)
         {
             Socket client = serverSocket.accept();
             System.out.println("Client connected.");
-            toClient = new ObjectOutputStream(client.getOutputStream());
-            toClient.writeObject(game);
-            fromClient = new ObjectInputStream(client.getInputStream());
-            if(!clientList.contains(client))
-                clientList.add(client);
-
-            if(game != null && game.isFull())
+            SocketConnection gameCon = new SocketConnection(client, this);
+            clientList.add(gameCon);
+            if(game != null)
             {
                 //start game;
-                System.out.println("Game Started.");
-                for(Socket player : clientList)
-                {
-                    fromClient = new ObjectInputStream(player.getInputStream());
-                    GameState playerState = (GameState) fromClient.readObject();
-                    copyOverState(playerState);
-                }
-            }else
-                if(game == null)
-                    game = (GameState) fromClient.readObject();
-        }
-    }
-    /**
-     * Starts a new game.
-     * */
-    public void startNewGame(String myName, int nrPlayers, int nrBots)
-    {
-        game = new GameState(nrPlayers, nrBots);
-        playerNames = new ArrayList<>();
-        playerNames.add(myName);
-        this.nrPlayers = nrPlayers;
-        this.nrBots = nrBots;
+                System.out.println("Game created in memory.");
+            }
+            addConn(gameCon);
 
-        try {
-            play();
-        }catch (IOException io){
-            io.printStackTrace();
-        }catch ( ClassNotFoundException cnfe)
-        {
-            cnfe.printStackTrace();
         }
     }
 
-    /**
-     * Try to connect to a running game.
-     * @param name -  the name of the player
-     * @return - true if connected successfully, false otherwise.
-     */
-    public boolean connect(String name)
+    public GameConnection getGame(){return game;}
+
+    /** Start a new Thread and add it to the connection list */
+    private void addConn(SocketConnection gameCon)
     {
-        if(!isRunning)return  false;
-        game.addPlayer(name);
-        return true;
+        Thread newConn = new Thread(gameCon);
+        connections.add(newConn);
+        newConn.start();
     }
-
-    /**
-     * Looks for differences between the states that players might have done and
-     * copies them over to the current gamestate.
-     * @param state
-     */
-    private void copyOverState(GameState state)
+    public void setGame(GameState game)
     {
-        System.out.println("%s is doing something.".replace("%s", state.getSocketName()));
-        //set any votes the cards might have gotten by iterating through the companies.
-        Iterator<Company> serverStateCompaniesIt = game.getCompanies().iterator();
-        Iterator<Company> clientStateCompaniesIt = state.getCompanies().iterator();
-
-        while(serverStateCompaniesIt.hasNext()
-                && clientStateCompaniesIt.hasNext())
-        {
-            Company serverSideCompany = serverStateCompaniesIt.next();
-            Company clientSideCompany = clientStateCompaniesIt.next();
-            serverSideCompany.getTopCard().votes(clientSideCompany.getTopCard().getVotes());
-        }
-        String playerName = state.getSocketName();
-        //Change own player details.
-        game.getPlayers().put(playerName, state.getPlayerByName(playerName));
+        this.game = game;
     }
-
-
 }

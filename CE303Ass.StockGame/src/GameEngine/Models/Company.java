@@ -38,6 +38,7 @@ public class Company implements Serializable
                 new Card(10),
                 new Card(20)
             );
+        shuffleDeck();
     }
 
     /**

@@ -87,8 +87,14 @@ public class Player implements Serializable
      */
     public void modifyStock(Company key, Integer amount)
     {
-        stocks.put(key, stocks.get(key) + amount);
-        money += amount.intValue() * key.getStockValue();
+        if(amount.intValue() <0) {
+            stocks.put(key, stocks.get(key) - amount);
+            money += amount.intValue() * key.getStockValue();
+        }else
+        {
+            stocks.put(key, stocks.get(key) + amount);
+            money -= amount.intValue() * key.getStockValue();
+        }
     }
 
     /** Getter for the Money of the player. */

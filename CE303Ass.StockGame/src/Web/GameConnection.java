@@ -27,18 +27,41 @@ public interface GameConnection
     @WebMethod
     ArrayList<Company> getCompanies();
 
+    /**
+     * Checks if the game is not finished, but not by the
+     * default maximum rounds, but by a new specified limit.
+     * @param maxRounds -  the max rounds of the game.
+     * @return
+     */
     @WebMethod
     boolean isNotFinished(@WebParam int maxRounds );
 
+    /**
+     * Checks if the game has finished or not.
+     * @return
+     */
     @WebMethod
     boolean isNotFinished();
 
+    /**
+     * Checks if all players have joined the game.
+     * @return - boolean
+     */
     @WebMethod
     boolean isFull();
 
+    /**
+     * Returns a specific player by its name.
+     * @param name -  the name of the player.
+     * @return
+     */
     @WebMethod
     Player getPlayerByName(@WebParam String name);
 
+    /**
+     * Get a map of all players.
+     * @return Map(PlayerName, PlayerObject)
+     */
     @WebMethod
     Map<String, Player> getPlayers();
     /** Creates and returns a new GameState. */
@@ -48,7 +71,11 @@ public interface GameConnection
         return new GameState(nrPlayers,nrBots);
     }
 
-
+    /**
+     * Adds a new player to the game.
+     * @param name - name of the player
+     * @return
+     */
     @WebMethod
     boolean addPlayer(@WebParam String name);
 

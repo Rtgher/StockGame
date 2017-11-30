@@ -58,7 +58,7 @@ public class GameState implements Serializable, GameConnection
         {
             bots.add(new Bot());
         }
-        System.out.println("Game started.");
+        System.out.println("Game has been created.");
     }
 
     /**
@@ -111,6 +111,7 @@ public class GameState implements Serializable, GameConnection
                 company.getTopCard().votes(vote);
             }
         }
+        System.out.println("Voted card for: "+vote);
     }
 
     /**
@@ -122,6 +123,7 @@ public class GameState implements Serializable, GameConnection
     public void tradeStock(String name, Player player)
     {
         players.put(name, player);
+        System.out.println("Player: "+name+" traded stock!");
     }
 
     /**
@@ -180,6 +182,7 @@ public class GameState implements Serializable, GameConnection
     {
         if(playersActed.size() == players.size())
         {
+            System.out.println("All players acted! Resolving round...");
             round ++;
             playersActed = new ArrayList<>();
             for (Bot bot : bots) bot.act(companies); //allows the bots to act.

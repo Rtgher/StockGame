@@ -96,6 +96,15 @@ public class PlayerClient implements PlayerConnection
     public void createGame(int nrPlayers, int nrBots)
     { gameConn = GameConnection.startNewGame(nrPlayers,nrBots);}
 
+    /**
+     * {@inheritDoc}
+     * @param name
+     * @param player
+     */
+    @Override
+    public void tradeStock(String name, Player player) {
+
+    }
 
     /**
      * {@inheritDoc}
