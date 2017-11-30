@@ -33,7 +33,8 @@ public class GameFrame extends JFrame implements ActionListener
     private int z = ((int)(gW*0.15));
     List<Company> companies;
     Player player;
-    JFrame gamePanel;
+    JFrame MainFrame;
+    JPanel gamePanel;
     JPanel cardButtonPane;
     List<JPanel> buttonPanels =  new ArrayList<>(5);
     private List<JLabel> companyLabels =  new ArrayList<>();
@@ -45,8 +46,8 @@ public class GameFrame extends JFrame implements ActionListener
     {
         this.companies = companies;
         this.player = player;
-        gamePanel = new JFrame("Stock Game");
-        gamePanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        MainFrame = new JFrame("Stock Game");
+        MainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create the menu bar.  Make it have a green background.
         JMenuBar menuBar = new JMenuBar();
@@ -108,21 +109,13 @@ public class GameFrame extends JFrame implements ActionListener
         menuBar.add(endTurn);
         cardButtonPane =  new JPanel();
         if(companies!=null)renderGameObjects();
-        //Create a yellow label to put in the content pane.
-        JLabel mainContent = new JLabel();
-        mainContent.setOpaque(true);
-        mainContent.setBackground(new Color(248, 213, 131));
-        mainContent.setPreferredSize(new Dimension(gW, gH));
 
         //Set the menu bar and add the label to the content pane.
-        gamePanel.setJMenuBar(menuBar);
-
-        gamePanel.getContentPane().add(cardButtonPane, BorderLayout.NORTH);
-        gamePanel.getContentPane().add(mainContent, BorderLayout.CENTER);
+        MainFrame.setJMenuBar(menuBar);
 
         //Display the window.
-        gamePanel.pack();
-        gamePanel.setVisible(true);
+        MainFrame.pack();
+        MainFrame.setVisible(true);
 
     }
 
@@ -131,6 +124,7 @@ public class GameFrame extends JFrame implements ActionListener
      * buttons and labels in the game. */
     private void renderGameObjects()
     {
+        gamePanel = new JPanel();
         for(Company company: companies)
         {
             JButton voteYesBtn = new JButton("YES");
@@ -178,7 +172,17 @@ public class GameFrame extends JFrame implements ActionListener
             buttonPanels.add(buttonPane1);
         }
         for(JPanel panel : buttonPanels)cardButtonPane.add(panel);
-        cardButtonPane.repaint();
+        //Create a yellow label to put in the content pane.
+        JLabel mainContent = new JLabel();
+        mainContent.setOpaque(true);
+        mainContent.setBackground(new Color(248, 213, 131));
+        mainContent.setPreferredSize(new Dimension(gW, gH));
+        gamePanel.add(cardButtonPane);
+
+        MainFrame.getContentPane().add(gamePanel, BorderLayout.NORTH);
+        MainFrame.getContentPane().add(mainContent, BorderLayout.CENTER);
+        gamePanel.setVisible(true);
+        MainFrame.repaint();
     }
 
     /**
@@ -203,6 +207,7 @@ public class GameFrame extends JFrame implements ActionListener
      */
     public void setData()
     {
+        renderGameObjects();
         if(companies!=null && companies.size()>0)
         {
             for(int i=0; i<companies.size();i++)
@@ -215,8 +220,6 @@ public class GameFrame extends JFrame implements ActionListener
         {
             new Alert(Alert.AlertType.ERROR, "Error. No game in progress. Please create or join a game.");
         }
-        renderGameObjects();
-        repaint();
     }
     /**
      * Getter for the client of the application.
@@ -239,7 +242,7 @@ public class GameFrame extends JFrame implements ActionListener
     {
         if (e.getSource().equals(startNew))
         {
-           JFrame newGameframe = new StartGameFrame(gamePanel);
+           JFrame newGameframe = new StartGameFrame(MainFrame);
            System.out.println("Starting a new game...");
         }else
         if(e.getSource().equals(endTurn))
@@ -256,7 +259,9 @@ public class GameFrame extends JFrame implements ActionListener
             {
                 client = new PlayerSocketClient();
                 client.joinGame();
-                setData(client.getCompaniesInPlay(), client.getPlayer());//TODO: repair this. player is null
+                this.setVisible(false);
+                MainFrame = new GameFrame(client.getCompaniesInPlay(), client.getPlayer());
+                ((GameFrame) MainFrame).setClient(client);
             }catch (ConnectException cn)
             {
                 new Alert(Alert.AlertType.ERROR, "Warning: failed to join game. Try starting a new server instead.");
@@ -280,7 +285,17 @@ public class GameFrame extends JFrame implements ActionListener
 
     public static void main(String[] args)
     {
-        new GameFrame(null, null);
+        GameFrame frame = new GameFrame(null, null);
+        while(true)
+            if(frame.getClient()!=null)
+            {
+                if (frame.getClient().newStateReceived)
+                {
+                    frame.setData();
+                    frame.repaint();
+                    frame.getClient().newStateReceived = false;
+                }
+            }
     }
 
 

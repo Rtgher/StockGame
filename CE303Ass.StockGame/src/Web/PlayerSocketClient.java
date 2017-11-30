@@ -30,6 +30,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     GameState gameConn = null;
     /** The name of the player */
     String name;
+    public boolean newStateReceived = true;
 
     private int actualVotes = 0;
     //Object input stream.
@@ -161,7 +162,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
             gameConn = (GameState)fromServer.readObject();
             if(gameConn != null) {
                 gameConn.setSocketName(name);
-
+                newStateReceived =  true;
             }
             else
             {
@@ -196,16 +197,13 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     /**
      * Call this method to update the server game state.
      */
-    public void sendRequest(GameRequest request)
-    {
-        try
-        {
-            System.out.println("Sending a "+request.getType()+" request to server.");
+    public void sendRequest(GameRequest request) {
+        try {
+            System.out.println("Sending a " + request.getType() + " request to server.");
 
             toServer.writeObject(request);
 
-        }catch (IOException io)
-        {
+        } catch (IOException io) {
             System.out.println("Caught IO exception while writing GameState to server.");
             io.printStackTrace();
         }

@@ -70,6 +70,7 @@ public class Card implements Serializable
     {
         if(votes !=0)
         {
+            System.out.println("Resolved card with value "+ modifier +" for company: " );
             this.isActive = false;
             return votes > 0? 1:-1;
         }

@@ -76,9 +76,12 @@ public class Company implements Serializable
             int modifier =  card.getModifier();
             switch (resolve)
             {
-                case -1 : break;//Do nothing.
+                case -1 :
+                    System.out.print(name+"\n");
+                    break;//Do nothing.
                 case 1:
                     stockValue += modifier;
+                    System.out.print(name+"\n");
                     break;
                 default : throw new UnexpectedException("Something weird happened during card resolve. Unexpected value for resolve variable encountered");
             }
