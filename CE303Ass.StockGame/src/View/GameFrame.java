@@ -34,6 +34,8 @@ public class GameFrame extends JFrame implements ActionListener
     List<Company> companies;
     Player player;
     JFrame gamePanel;
+    JPanel cardButtonPane;
+    List<JPanel> buttonPanels =  new ArrayList<>(5);
     private List<JLabel> companyLabels =  new ArrayList<>();
     private List<JLabel> cardLabels = new ArrayList<>();
 
@@ -104,250 +106,8 @@ public class GameFrame extends JFrame implements ActionListener
                 "Press to finish round");
         endTurn.setToolTipText("Press to finish round.");
         menuBar.add(endTurn);
-        JPanel buttonPane = new JPanel();
-
-
-        if(companies!=null) {
-            //ad button bar after menu at the north
-
-            JButton plus_1 = new JButton("PLUS");
-            plus_1.addActionListener(this);
-            plus_1.setBackground(new Color(255, 255, 255));
-            plus_1.setMaximumSize(new Dimension(100, 100));
-            plus_1.setVisible(true);
-            plusVoteButtons.add(plus_1);
-
-
-            JButton minus_1 = new JButton("MINUS");
-            minus_1.addActionListener(this);
-            minus_1.setBackground(new Color(255, 255, 255));
-            minus_1.setMaximumSize(new Dimension(100, 100));
-            minus_1.setVisible(true);
-            negativeVoteButtons.add(minus_1);
-
-
-            JLabel label_1 = new JLabel("APPLE", SwingConstants.CENTER);
-            label_1.setText((companies.get(0).getTopCard().getModifier()>0?"+":"") +companies.get(0).getTopCard().getModifier());
-            cardLabels.add(label_1);
-            label_1.setMaximumSize(new Dimension(150, 0));
-            label_1.setPreferredSize(new Dimension(0, 50));
-            label_1.setBackground(new Color(255, 255, 255));
-            label_1.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-            label_1.setVisible(true);
-
-
-            JButton plus_2 = new JButton("PLUS");
-            plus_2.addActionListener(this);
-            plus_2.setBackground(new Color(255, 255, 255));
-            plus_2.setMaximumSize(new Dimension(100, 100));
-            plus_2.setVisible(true);
-            plusVoteButtons.add(plus_2);
-
-            JButton minus_2 = new JButton("MINUS");
-            minus_2.addActionListener(this);
-            minus_2.setBackground(new Color(255, 255, 255));
-            minus_2.setMaximumSize(new Dimension(100, 100));
-            minus_2.setVisible(true);
-            negativeVoteButtons.add(minus_2);
-
-
-            JLabel label_2 = new JLabel("BP", SwingConstants.CENTER);
-            label_2.setText((companies.get(1).getTopCard().getModifier()>0?"+":"")+companies.get(1).getTopCard().getModifier());
-            cardLabels.add(label_2);
-            label_2.setMaximumSize(new Dimension(150, 0));
-            label_2.setPreferredSize(new Dimension(0, 50));
-            label_2.setBackground(new Color(255, 255, 255));
-            label_2.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-            label_2.setVisible(true);
-
-
-            JButton plus_3 = new JButton("PLUS");
-            plus_3.addActionListener(this);
-            plus_3.setBackground(new Color(255, 255, 255));
-            plus_3.setMaximumSize(new Dimension(100, 100));
-            plus_3.setVisible(true);
-            plusVoteButtons.add(plus_3);
-
-
-            JButton minus_3 = new JButton("MINUS");
-            minus_3.addActionListener(this);
-            minus_3.setBackground(new Color(255, 255, 255));
-            minus_3.setMaximumSize(new Dimension(100, 100));
-            minus_3.setVisible(true);
-            negativeVoteButtons.add(minus_3);
-
-            JLabel label_3 = new JLabel("CISCO", SwingConstants.CENTER);
-            label_3.setText((companies.get(2).getTopCard().getModifier()>0?"+":"")+companies.get(2).getTopCard().getModifier());
-            cardLabels.add(label_3);
-            label_3.setMaximumSize(new Dimension(150, 0));
-            label_3.setPreferredSize(new Dimension(0, 50));
-            label_3.setBackground(new Color(255, 255, 255));
-            label_3.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-            label_3.setVisible(true);
-
-
-            JButton plus_4 = new JButton("PLUS");
-            plus_4.addActionListener(this);
-            plus_4.setBackground(new Color(255, 255, 255));
-            plus_4.setMaximumSize(new Dimension(100, 100));
-            plus_4.setVisible(true);
-            plusVoteButtons.add(plus_4);
-
-
-            JButton minus_4 = new JButton("MINUS");
-            minus_4.addActionListener(this);
-            minus_4.setBackground(new Color(255, 255, 255));
-            minus_4.setMaximumSize(new Dimension(100, 100));
-            minus_4.setVisible(true);
-            negativeVoteButtons.add(minus_4);
-
-            JLabel label_4 = new JLabel("DELL", SwingConstants.CENTER);
-            label_4.setText((companies.get(3).getTopCard().getModifier()>0?"+":"")+companies.get(3).getTopCard().getModifier());
-            cardLabels.add(label_4);
-            label_4.setMaximumSize(new Dimension(150, 0));
-            label_4.setPreferredSize(new Dimension(0, 50));
-            label_4.setBackground(new Color(255, 255, 255));
-            label_4.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-            label_4.setVisible(true);
-
-
-            JButton plus_5 = new JButton("PLUS");
-            plus_5.addActionListener(this);
-            plus_5.setBackground(new Color(255, 255, 255));
-            plus_5.setMaximumSize(new Dimension(100, 100));
-            plus_5.setVisible(true);
-            plusVoteButtons.add(plus_5);
-
-
-            JButton minus_5 = new JButton("MINUS");
-            minus_5.addActionListener(this);
-            minus_5.setBackground(new Color(255, 255, 255));
-            minus_5.setMaximumSize(new Dimension(100, 100));
-            minus_5.setVisible(true);
-            negativeVoteButtons.add(minus_5);
-
-            JLabel label_5 = new JLabel("ERICSSON", SwingConstants.CENTER);
-            label_5.setText((companies.get(4).getTopCard().getModifier()>0?"+":"")+companies.get(4).getTopCard().getModifier());
-            cardLabels.add(label_5);
-            label_5.setMaximumSize(new Dimension(150, 0));
-            label_5.setPreferredSize(new Dimension(0, 50));
-            label_5.setBackground(new Color(255, 255, 255));
-            label_5.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-            label_5.setVisible(true);
-
-
-            JPanel buttonPane1 = new JPanel();
-
-            JLabel label_11 = new JLabel("APPLE", SwingConstants.CENTER);
-            label_11.setText(companies.get(0).getName());
-            label_11.setMaximumSize(new Dimension(150, 0));
-            label_11.setPreferredSize(new Dimension(0, 50));
-            label_11.setVisible(true);
-            companyLabels.add(label_11);
-
-            buttonPane1.setLayout(new BoxLayout(buttonPane1, BoxLayout.Y_AXIS));
-            buttonPane1.add(Box.createVerticalGlue());
-            buttonPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            buttonPane1.add(label_11);
-            buttonPane1.add(plus_1);
-            buttonPane1.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane1.add(label_1);
-            buttonPane1.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane1.add(minus_1);
-
-            JPanel buttonPane2 = new JPanel();
-
-            JLabel label_22 = new JLabel("BP", SwingConstants.CENTER);
-            label_22.setText(companies.get(1).getName());
-            label_22.setMaximumSize(new Dimension(150, 0));
-            label_22.setPreferredSize(new Dimension(0, 50));
-            label_22.setVisible(true);
-            companyLabels.add(label_22);
-
-            buttonPane2.setLayout(new BoxLayout(buttonPane2, BoxLayout.Y_AXIS));
-            buttonPane2.add(Box.createVerticalGlue());
-            buttonPane2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            buttonPane2.add(label_22);
-            buttonPane2.add(plus_2);
-            buttonPane2.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane2.add(label_2);
-            buttonPane2.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane2.add(minus_2);
-
-
-            JPanel buttonPane3 = new JPanel();
-
-            JLabel label_33 = new JLabel("CISCO", SwingConstants.CENTER);
-            label_33.setText(companies.get(2).getName());
-            label_33.setMaximumSize(new Dimension(150, 0));
-            label_33.setPreferredSize(new Dimension(0, 50));
-            label_33.setVisible(true);
-            companyLabels.add(label_33);
-
-            buttonPane3.setLayout(new BoxLayout(buttonPane3, BoxLayout.Y_AXIS));
-            buttonPane3.add(Box.createVerticalGlue());
-            buttonPane3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            buttonPane3.add(label_33);
-            buttonPane3.add(plus_3);
-            buttonPane3.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane3.add(label_3);
-            buttonPane3.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane3.add(minus_3);
-
-
-            JPanel buttonPane4 = new JPanel();
-
-            JLabel label_44 = new JLabel("DELL", SwingConstants.CENTER);
-            label_44.setText(companies.get(3).getName());
-            label_44.setMaximumSize(new Dimension(150, 0));
-            label_44.setPreferredSize(new Dimension(0, 50));
-            label_44.setVisible(true);
-            companyLabels.add(label_44);
-
-            buttonPane4.setLayout(new BoxLayout(buttonPane4, BoxLayout.Y_AXIS));
-            buttonPane4.add(Box.createVerticalGlue());
-            buttonPane4.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            buttonPane4.add(label_44);
-            buttonPane4.add(plus_4);
-            buttonPane4.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane4.add(label_4);
-            buttonPane4.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane4.add(minus_4);
-
-
-            JPanel buttonPane5 = new JPanel();
-
-            JLabel label_55 = new JLabel("ERICSSON", SwingConstants.CENTER);
-            label_55.setText(companies.get(4).getName());
-            label_55.setMaximumSize(new Dimension(150, 0));
-            label_55.setPreferredSize(new Dimension(0, 50));
-            label_55.setVisible(true);
-            companyLabels.add(label_55);
-
-            buttonPane5.setLayout(new BoxLayout(buttonPane5, BoxLayout.Y_AXIS));
-            buttonPane5.add(Box.createVerticalGlue());
-            buttonPane5.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            buttonPane5.add(label_55);
-            buttonPane5.add(plus_5);
-            buttonPane5.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane5.add(label_5);
-            buttonPane5.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane5.add(minus_5);
-
-
-            buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-            buttonPane.add(Box.createHorizontalGlue());
-            buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 180));
-            buttonPane.add(buttonPane1);
-            buttonPane.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane.add(buttonPane2);
-            buttonPane.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane.add(buttonPane3);
-            buttonPane.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane.add(buttonPane4);
-            buttonPane.add(Box.createRigidArea(new Dimension(10, 10)));
-            buttonPane.add(buttonPane5);
-        }
+        cardButtonPane =  new JPanel();
+        if(companies!=null)renderGameObjects();
         //Create a yellow label to put in the content pane.
         JLabel mainContent = new JLabel();
         mainContent.setOpaque(true);
@@ -357,7 +117,7 @@ public class GameFrame extends JFrame implements ActionListener
         //Set the menu bar and add the label to the content pane.
         gamePanel.setJMenuBar(menuBar);
 
-        gamePanel.getContentPane().add(buttonPane, BorderLayout.NORTH);
+        gamePanel.getContentPane().add(cardButtonPane, BorderLayout.NORTH);
         gamePanel.getContentPane().add(mainContent, BorderLayout.CENTER);
 
         //Display the window.
@@ -367,13 +127,68 @@ public class GameFrame extends JFrame implements ActionListener
     }
 
     /**
+     * A method to set and redraw all the panels,
+     * buttons and labels in the game. */
+    private void renderGameObjects()
+    {
+        for(Company company: companies)
+        {
+            JButton voteYesBtn = new JButton("YES");
+            voteYesBtn.addActionListener(this);
+            voteYesBtn.setBackground(new Color(255, 255, 255));
+            voteYesBtn.setMaximumSize(new Dimension(100, 100));
+            voteYesBtn.setVisible(true);
+            plusVoteButtons.add(voteYesBtn);
+
+
+            JButton voteNoBtn = new JButton("NO");
+            voteNoBtn.addActionListener(this);
+            voteNoBtn.setBackground(new Color(255, 255, 255));
+            voteNoBtn.setMaximumSize(new Dimension(100, 100));
+            voteNoBtn.setVisible(true);
+            negativeVoteButtons.add(voteNoBtn);
+
+
+            JLabel cardModifierLbl = new JLabel( (company.getTopCard().getModifier() > 0 ? "+" : "") + company.getTopCard().getModifier(),
+                    SwingConstants.CENTER);
+            cardLabels.add(cardModifierLbl);
+            cardModifierLbl.setMaximumSize(new Dimension(150, 0));
+            cardModifierLbl.setPreferredSize(new Dimension(0, 50));
+            cardModifierLbl.setBackground(new Color(255, 255, 255));
+            cardModifierLbl.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+            cardModifierLbl.setVisible(true);
+
+            JLabel compLabel = new JLabel(company.getName(), SwingConstants.CENTER);
+            compLabel.setMaximumSize(new Dimension(150, 0));
+            compLabel.setPreferredSize(new Dimension(0, 50));
+            compLabel.setVisible(true);
+            companyLabels.add(compLabel);
+
+            JPanel buttonPane1 = new JPanel();
+
+            buttonPane1.setLayout(new BoxLayout(buttonPane1, BoxLayout.Y_AXIS));
+            buttonPane1.add(Box.createVerticalGlue());
+            buttonPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            buttonPane1.add(compLabel);
+            buttonPane1.add(voteYesBtn);
+            buttonPane1.add(Box.createRigidArea(new Dimension(10, 10)));
+            buttonPane1.add(cardModifierLbl);
+            buttonPane1.add(Box.createRigidArea(new Dimension(10, 10)));
+            buttonPane1.add(voteNoBtn);
+            buttonPanels.add(buttonPane1);
+        }
+        for(JPanel panel : buttonPanels)cardButtonPane.add(panel);
+        cardButtonPane.repaint();
+    }
+
+    /**
      * Updates companies and player and then resets data.
      * @param companies
      * @param player
      */
     public void setData(List<Company> companies, Player player)
     {
-        while(companies==null || player == null){
+        while(companies==null ){// || player == null
             client.getGameState();
             companies = client.getCompaniesInPlay();
             player = client.getPlayer();
@@ -388,7 +203,7 @@ public class GameFrame extends JFrame implements ActionListener
      */
     public void setData()
     {
-        if(companies!=null)
+        if(companies!=null && companies.size()>0)
         {
             for(int i=0; i<companies.size();i++)
             {
@@ -400,6 +215,7 @@ public class GameFrame extends JFrame implements ActionListener
         {
             new Alert(Alert.AlertType.ERROR, "Error. No game in progress. Please create or join a game.");
         }
+        renderGameObjects();
         repaint();
     }
     /**
