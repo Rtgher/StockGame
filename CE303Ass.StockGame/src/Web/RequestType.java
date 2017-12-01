@@ -11,5 +11,6 @@ public enum RequestType implements Serializable
     VOTE,
     PLAYER_REQ,
     STATE_REQ,
-    TRADE
+    TRADE,
+    GAME_END
 }

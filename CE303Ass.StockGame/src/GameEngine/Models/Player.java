@@ -87,11 +87,11 @@ public class Player implements Serializable
      */
     public void modifyStock(Company key, Integer amount)
     {
-        if(amount.intValue() <0)
+        if(amount.intValue() <0 && stocks.get(key) > 0)
         {
-            stocks.put(key, stocks.get(key) - amount);
+            stocks.put(key, stocks.get(key) + amount);
             money += amount.intValue() * key.getStockValue();
-        }else
+        }else if(amount.intValue() > 0 && getMoney()> key.getStockValue())
         {
             stocks.put(key, stocks.get(key) + amount);
             money -= amount.intValue() * key.getStockValue();

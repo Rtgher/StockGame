@@ -15,6 +15,7 @@ public class SocketConnection implements Runnable
     private ObjectOutputStream toClient;
     private ObjectInputStream fromClient;
     private Socket socket;
+    private String name = "";
     /** a reference to the server running. */
     private GameServer server;
     private boolean isRunning;
@@ -50,22 +51,16 @@ public class SocketConnection implements Runnable
     {
         while(isRunning) {
             try {
-                //sendGameStateToClient();
                 readRequestsFromClient();
                 if(!server.game.isNotFinished())
                     isRunning = false;
+                if(socket.isClosed())break;
             } catch (IOException | ClassNotFoundException exc) {
                 System.out.println("Caught exception in one of the clients.");
                 exc.printStackTrace();
             }
         }//on exit
-        try {
-            System.out.println("Game finished. Closing clients.");
-            while(socket.isConnected())sendGameStateToClient();
-        }catch (IOException io)
-        {
-            io.printStackTrace();
-        }
+
     }
 
     /**
@@ -110,6 +105,7 @@ public class SocketConnection implements Runnable
      * copies them over to the current gamestate.
      * @param state
      */
+    @Deprecated
     private void copyOverState(GameState state)
     {
         if(state==null)return;//stop if gotten a null game.
@@ -136,17 +132,19 @@ public class SocketConnection implements Runnable
      */
     private void readRequestsFromClient() throws IOException, ClassNotFoundException
     {
-        System.out.println("Reading any input from client: " + socket.toString());
+        System.out.println("Reading any input from client: " + name);
         GameRequest request = (GameRequest) fromClient.readObject();
 
         switch (request.getType()) {
             case START_GAME:
                 startNewGame(request.getName(), request.getNrPlayers(), request.getNrBots());
                 System.out.println("Game started by "+request.getName());
+                name = request.getName();
                 break;
             case JOIN_GAME:
                 connect(request.getName());
                 System.out.println(request.getName() + " has joined.");
+                name = request.getName();
                 break;
             case VOTE:
                 server.game.voteCard(request.getCompanyName(), request.getVote());
@@ -169,21 +167,25 @@ public class SocketConnection implements Runnable
             case STATE_REQ:
                 sendGameStateToClient();
                 break;
+            case GAME_END:
+                sendGameStateToClient();
+                System.out.println(request.getMessage());
+                socket.close();
             default:
                 throw new ClassNotFoundException("Invalid type of request.");
 
         }
-        System.out.println("PARSED REQUEST of type "+ request.getType());
+        System.out.println("PARSED REQUEST of type "+ request.getType() + " from " + name);
     }
 
     /**
      * Sends the gamestate to the clients.
      * @throws IOException
      */
-    private synchronized void sendGameStateToClient() throws IOException
+    private void sendGameStateToClient() throws IOException
     {
-            System.out.println("Sending game game to client + " + socket);
-            toClient.writeObject(server.getGame());
+            System.out.println("Sending gamestate to client + " + name);
+            toClient.writeObject(server.game);
             System.out.println("Sent game state to client.");
     }
 

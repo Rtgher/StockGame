@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.List;
 
@@ -282,7 +283,7 @@ public class GameFrame extends JFrame implements ActionListener
         }
         if(player!=null)
         {
-            for(Company comp : player.getStocks().keySet())
+            for(Company comp : companies)
             {
                 stockUnitNrLabels.get(comp).setText(player.getStocks().get(comp).toString());
                 stockValueLabels.get(comp).setText(comp.getStockValue()+"");
@@ -321,6 +322,7 @@ public class GameFrame extends JFrame implements ActionListener
             if(client != null)
             {
                 client.playerActed();
+                try{client.gameConn.playerActed(client.getName());}catch(UnexpectedException ue){ue.printStackTrace();};
                 setData();
                 System.out.println("Player finished turn.");
             }
@@ -343,12 +345,14 @@ public class GameFrame extends JFrame implements ActionListener
             if(e.getSource().equals(plusVoteButtons.get(comp)))
             {
                 getClient().voteCard(comp.getName(),1);
+                getClient().gameConn.voteCard(comp.getName(), 1);//mirror behaviour here.
                 System.out.println("Voted YES!");
             }
             else
             if (e.getSource().equals(negativeVoteButtons.get(comp)))
             {
                 getClient().voteCard(comp.getName(), -1);
+                getClient().gameConn.voteCard(comp.getName(), -1);// mirror behaviour here.
                 System.out.println("Voted NO!");
             }
             else
@@ -357,6 +361,7 @@ public class GameFrame extends JFrame implements ActionListener
                 Player player = client.getPlayer();
                 player.modifyStock(comp, +1);
                 getClient().tradeStock(client.getName(), player);
+                getClient().gameConn.tradeStock(client.getName(),player );// mirror behaviour here.
                 setData();
                 System.out.println("Bought stock for: "+comp.getName());
             }
@@ -365,6 +370,7 @@ public class GameFrame extends JFrame implements ActionListener
                 Player player = client.getPlayer();
                 player.modifyStock(comp, -1);
                 getClient().tradeStock(client.getName(), player);
+                getClient().gameConn.tradeStock(client.getName(),player );// mirror behaviour here.
                 setData();
                 System.out.println("Sold stock for: "+ comp.getName());
             }

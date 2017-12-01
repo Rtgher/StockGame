@@ -29,7 +29,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
 
     private Socket server;
 
-    GameState gameConn = null;
+    public GameState gameConn = null;
     /** The name of the player */
     String name;
     public boolean newStateReceived = true;
@@ -91,7 +91,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public List<Company> getCompaniesInPlay()
     {
-        return getGameState().getCompanies();
+        return gameConn.getCompanies();
     }
 
     /**
@@ -145,7 +145,11 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         {
 
         }
-        getGameState();
+        GameRequest request = new GameRequest(RequestType.GAME_END);
+        request.setName(name);
+        request.setMessage(getName()+"'s final money was: "+ getPlayer().getMoney());
+        sendRequest(request);
+        try{gameConn = (GameState)fromServer.readObject();}catch (IOException | ClassNotFoundException ex){};
         String winnerName="";
         for(Player player : gameConn.getPlayers().values())
         {

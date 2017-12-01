@@ -208,7 +208,7 @@ public class GameState implements Serializable, GameConnection
                 }
             }
         }
-        System.out.println("VOte state is: "+stateround);
+        System.out.println("Vote state is: "+stateround);
     }
 
     public ArrayList<Bot> getBots() {
