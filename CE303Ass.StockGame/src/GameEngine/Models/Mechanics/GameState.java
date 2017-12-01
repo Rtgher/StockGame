@@ -196,6 +196,10 @@ public class GameState implements Serializable, GameConnection
         }
     }
 
+    public ArrayList<Bot> getBots() {
+        return bots;
+    }
+
     public void setSocketName(String socketName) {
         this.socketName = socketName;
     }

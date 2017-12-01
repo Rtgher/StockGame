@@ -4,6 +4,7 @@ import GameEngine.Models.Company;
 import GameEngine.Models.Player;
 import Web.PlayerSocketClient;
 import javafx.scene.control.Alert;
+import sun.applet.Main;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,8 @@ import java.util.List;
  */
 public class GameFrame extends JFrame implements ActionListener
 {
-
+    /** A thread especially for the player to do his thing. */
+    Thread playerThread;
     JMenu menu, submenu;
     JButton endTurn;
     JMenuItem startNew;
@@ -48,6 +50,7 @@ public class GameFrame extends JFrame implements ActionListener
         this.player = player;
         MainFrame = new JFrame("Stock Game");
         MainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        MainFrame.setSize(100, 50);
 
         // Create the menu bar.  Make it have a green background.
         JMenuBar menuBar = new JMenuBar();
@@ -125,6 +128,7 @@ public class GameFrame extends JFrame implements ActionListener
     private void renderGameObjects()
     {
         gamePanel = new JPanel();
+
         for(Company company: companies)
         {
             JButton voteYesBtn = new JButton("YES");
@@ -182,6 +186,9 @@ public class GameFrame extends JFrame implements ActionListener
         MainFrame.getContentPane().add(gamePanel, BorderLayout.NORTH);
         MainFrame.getContentPane().add(mainContent, BorderLayout.CENTER);
         gamePanel.setVisible(true);
+        gamePanel.repaint();
+        MainFrame.pack();
+        MainFrame.setVisible(true);
         MainFrame.repaint();
     }
 
@@ -192,7 +199,7 @@ public class GameFrame extends JFrame implements ActionListener
      */
     public void setData(List<Company> companies, Player player)
     {
-        while(companies==null ){// || player == null
+        while(companies==null ){
             client.getGameState();
             companies = client.getCompaniesInPlay();
             player = client.getPlayer();
@@ -207,18 +214,27 @@ public class GameFrame extends JFrame implements ActionListener
      */
     public void setData()
     {
-        renderGameObjects();
+
+        if(plusVoteButtons.isEmpty())
+                renderGameObjects();
+        String cardstates = "";
         if(companies!=null && companies.size()>0)
         {
             for(int i=0; i<companies.size();i++)
             {
                 companyLabels.get(i).setText(companies.get(i).getName());
                 cardLabels.get(i).setText((companies.get(i).getTopCard().getModifier()>0?"+":"")+companies.get(i).getTopCard().getModifier());
+                cardstates += " [{0}]".replace("{0}", companies.get(i).getTopCard().getModifier() + "");
             }
+            System.out.println("Printing cards: " +cardstates);
         }
         else
         {
-            new Alert(Alert.AlertType.ERROR, "Error. No game in progress. Please create or join a game.");
+            JOptionPane.showMessageDialog(this, "Error. No game in progress. Please create or join a game.", "ERROR ", JOptionPane.ERROR_MESSAGE);
+        }
+        if(player!=null)
+        {
+            this.player = player;
         }
     }
     /**
@@ -234,15 +250,17 @@ public class GameFrame extends JFrame implements ActionListener
      * Set the client that is connected to the server.
      * @param client
      */
-    public void setClient(PlayerSocketClient client) {
+    public void setClient(PlayerSocketClient client)
+    {
         this.client = client;
+        playerThread = new Thread(client);
     }
 
     public void actionPerformed(ActionEvent e)
     {
         if (e.getSource().equals(startNew))
         {
-           JFrame newGameframe = new StartGameFrame(MainFrame);
+           JFrame newGameframe = new StartGameFrame(this);
            System.out.println("Starting a new game...");
         }else
         if(e.getSource().equals(endTurn))
@@ -250,6 +268,8 @@ public class GameFrame extends JFrame implements ActionListener
             if(client != null)
             {
                 client.playerActed();
+                while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
+                setData(client.getCompaniesInPlay(), client.getPlayer());
                 System.out.println("Player finished turn.");
             }
         }else
@@ -257,14 +277,14 @@ public class GameFrame extends JFrame implements ActionListener
         {
             try
             {
-                client = new PlayerSocketClient();
+                PlayerSocketClient client = new PlayerSocketClient();
                 client.joinGame();
-                this.setVisible(false);
-                MainFrame = new GameFrame(client.getCompaniesInPlay(), client.getPlayer());
-                ((GameFrame) MainFrame).setClient(client);
+                while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
+                setClient(client);
+                setData(client.getCompaniesInPlay(), client.getPlayer());
             }catch (ConnectException cn)
             {
-                new Alert(Alert.AlertType.ERROR, "Warning: failed to join game. Try starting a new server instead.");
+                JOptionPane.showMessageDialog(this, "Warning: failed to join game. Try starting a new server instead.", "ERROR ", JOptionPane.ERROR_MESSAGE);
             }
         }
         for (int i=0;i<plusVoteButtons.size();i++)

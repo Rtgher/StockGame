@@ -52,10 +52,19 @@ public class SocketConnection implements Runnable
             try {
                 sendGameStateToClient();
                 readRequestsFromClient();
+                if(!server.game.isNotFinished())
+                    isRunning = false;
             } catch (IOException | ClassNotFoundException exc) {
                 System.out.println("Caught exception in one of the clients.");
                 exc.printStackTrace();
             }
+        }//on exit
+        try {
+            sendGameStateToClient();
+            socket.close();
+        }catch (IOException io)
+        {
+            io.printStackTrace();
         }
     }
 
@@ -126,7 +135,7 @@ public class SocketConnection implements Runnable
      */
     private synchronized void readRequestsFromClient() throws IOException, ClassNotFoundException
     {
-        System.out.println("Reading any input from client: " + fromClient.toString());
+        System.out.println("Reading any input from client: " + socket.toString());
         GameRequest request = (GameRequest) fromClient.readObject();
 
         switch (request.getType()) {
@@ -166,9 +175,9 @@ public class SocketConnection implements Runnable
      */
     private synchronized void sendGameStateToClient() throws IOException
     {
-            System.out.println("Sending game game to client + " + toClient);
+            System.out.println("Sending game game to client + " + socket);
             toClient.writeObject(server.getGame());
-            System.out.println("Sent game game.");
+            System.out.println("Sent game state to client.");
     }
 
 }

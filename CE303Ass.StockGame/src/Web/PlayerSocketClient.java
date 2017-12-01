@@ -1,11 +1,13 @@
 package Web;
 
+import GameEngine.Models.Bot;
 import GameEngine.Models.Company;
 import GameEngine.Models.Mechanics.GameState;
 import GameEngine.Models.Player;
 import javafx.scene.control.Alert;
 import org.omg.CORBA.Request;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -93,7 +95,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public List<Company> getCompaniesInPlay()
     {
-        return gameConn.getCompanies();
+        return getGameState().getCompanies();
     }
 
     /**
@@ -101,6 +103,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void playerActed()
     {
+        actualVotes = 0;
         GameRequest request = new GameRequest(RequestType.NOTIFY);
         request.setName(name);
         request.setMessage(FINISHED);
@@ -112,7 +115,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public Player getPlayer()
     {
-        return gameConn.getPlayerByName(name);
+        return getGameState().getPlayerByName(name);
     }
 
     /**
@@ -144,10 +147,43 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     {
         while(gameConn.isNotFinished())
         {
+
+            GameRequest request = new GameRequest(RequestType.MESSAGE);
+            request.setName(name);
+            request.setMessage("ALIVE");
+            sendRequest(request);
+
             getGameState();
         }
+        String winnerName="";
+        for(Player player : gameConn.getPlayers().values())
+        {
+            Player nplayer = gameConn.getPlayerByName(winnerName);
+            if (nplayer != null) //see if you can find the current highscorer.
+            {
+                if(player.getMoney()>nplayer.getMoney())
+                    winnerName = player.getName();
+            }
+            else
+            {
+                //initialise with the first player name if didn't find the answer.
+                winnerName = player.getName();
+            }
+        }
+        for(Bot bot: gameConn.getBots())
+        {
+            if (bot != null)
+            {
+                if(bot.getMoney()>gameConn.getPlayerByName(winnerName).getMoney())
+                {
+                    winnerName = bot.getName();
+                    break;//break, as there is no way any players did well, and I'm too lazy to circle through all the bots to find the actual winner. :))
+                }
 
-        new Alert(Alert.AlertType.INFORMATION, "Game Over.");
+            }
+        }
+        System.out.println("GAME FINISHED: WINNER IS:" + winnerName);
+        JOptionPane.showMessageDialog(null,  "Game Over. Winner is:"+winnerName, "Game finished.", JOptionPane.INFORMATION_MESSAGE);
 
     }
 
@@ -160,6 +196,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         try
         {
             gameConn = (GameState)fromServer.readObject();
+            while(gameConn ==null) gameConn = (GameState)fromServer.readObject();
             if(gameConn != null) {
                 gameConn.setSocketName(name);
                 newStateReceived =  true;

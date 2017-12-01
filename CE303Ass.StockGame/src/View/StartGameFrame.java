@@ -23,14 +23,16 @@ public class StartGameFrame extends JFrame
     /**
      * The initialiser
      */
-    public StartGameFrame(Frame parent)
+    public StartGameFrame(GameFrame parent)
     {
 
         frame = new JFrame("Start a new Game");
         JPanel panel = new JPanel();
         Format numbersFormat = NumberFormat.getNumberInstance();
         JFormattedTextField nrPlayers = new JFormattedTextField(numbersFormat);
+        JLabel playersLabel =  new JLabel("NR Players:");
         JFormattedTextField nrBots = new JFormattedTextField(numbersFormat);
+        JLabel botsLabel = new JLabel("NR Bots:");
         nrPlayers.setBorder(BorderFactory.createBevelBorder(1));
         nrPlayers.setToolTipText("The wanted number of players for the game.");
         nrPlayers.setColumns(5);
@@ -44,12 +46,12 @@ public class StartGameFrame extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 System.out.println("Sending: P:" + nrP + " B:" + nrB);
-                parent.setVisible(false);
                 PlayerSocketClient player = new PlayerSocketClient();
                 player.createGame(nrP,nrB);
                 while(player.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){}
-                GameFrame playframe = new GameFrame(player.getCompaniesInPlay(), player.getPlayer());
-                playframe.setClient(player);
+                parent.setClient(player);
+                parent.setData(player.getCompaniesInPlay(),player.getPlayer());
+                parent.setFocusable(true);
                 frame.setVisible(false);
             }
         });
@@ -66,12 +68,13 @@ public class StartGameFrame extends JFrame
                 nrB = Integer.parseInt((String)(nrBots.getText()));
             }
         });
-
+        panel.add(playersLabel);
         panel.add(nrPlayers);
+        panel.add(botsLabel);
         panel.add(nrBots);
         panel.add(start,BorderLayout.SOUTH);
         frame.add(panel);
-        Dimension size = new Dimension(300, 300);
+        Dimension size = new Dimension(300, 200);
         frame.setPreferredSize(size);
         frame.setSize(size);
         frame.setFocusable(true);
