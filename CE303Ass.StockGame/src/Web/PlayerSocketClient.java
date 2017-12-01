@@ -115,7 +115,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public Player getPlayer()
     {
-        return getGameState().getPlayerByName(name);
+        return gameConn.getPlayerByName(name);
     }
 
     /**
@@ -145,12 +145,12 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void run()
     {
-        while(gameConn.isNotFinished())
+        while(getGameState().isNotFinished())
         {
 
             GameRequest request = new GameRequest(RequestType.MESSAGE);
             request.setName(name);
-            request.setMessage("ALIVE");
+            request.setMessage(name + "IS ALIVE");
             sendRequest(request);
 
             getGameState();

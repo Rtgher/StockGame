@@ -60,6 +60,7 @@ public class SocketConnection implements Runnable
             }
         }//on exit
         try {
+            System.out.println("Game finished. Closing clients.");
             sendGameStateToClient();
             socket.close();
         }catch (IOException io)
@@ -133,7 +134,7 @@ public class SocketConnection implements Runnable
     /**
      * Reads the Gamestate from every client it has.
      */
-    private synchronized void readRequestsFromClient() throws IOException, ClassNotFoundException
+    private void readRequestsFromClient() throws IOException, ClassNotFoundException
     {
         System.out.println("Reading any input from client: " + socket.toString());
         GameRequest request = (GameRequest) fromClient.readObject();
@@ -173,7 +174,7 @@ public class SocketConnection implements Runnable
      * Sends the gamestate to the clients.
      * @throws IOException
      */
-    private synchronized void sendGameStateToClient() throws IOException
+    private void sendGameStateToClient() throws IOException
     {
             System.out.println("Sending game game to client + " + socket);
             toClient.writeObject(server.getGame());

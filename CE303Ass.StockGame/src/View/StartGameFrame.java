@@ -50,7 +50,7 @@ public class StartGameFrame extends JFrame
                 player.createGame(nrP,nrB);
                 while(player.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){}
                 parent.setClient(player);
-                parent.setData(player.getCompaniesInPlay(),player.getPlayer());
+                parent.setData();
                 parent.setFocusable(true);
                 frame.setVisible(false);
             }

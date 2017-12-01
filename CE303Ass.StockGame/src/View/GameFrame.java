@@ -3,8 +3,6 @@ package View;
 import GameEngine.Models.Company;
 import GameEngine.Models.Player;
 import Web.PlayerSocketClient;
-import javafx.scene.control.Alert;
-import sun.applet.Main;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +27,8 @@ public class GameFrame extends JFrame implements ActionListener
     JCheckBoxMenuItem cbMenuItem;
     List<JButton> plusVoteButtons = new ArrayList<>();
     List<JButton> negativeVoteButtons =  new ArrayList();
+    List<JButton> buyStockButtons = new ArrayList<>();
+    List<JButton> sellStockButtons = new ArrayList<>();
     private int gW = 840;
     private int gH = 620;
     private int t = ((int)(gH*0.15));
@@ -41,6 +41,8 @@ public class GameFrame extends JFrame implements ActionListener
     List<JPanel> buttonPanels =  new ArrayList<>(5);
     private List<JLabel> companyLabels =  new ArrayList<>();
     private List<JLabel> cardLabels = new ArrayList<>();
+    private List<JLabel> stockUnitNrLabels = new ArrayList<>();
+    private List<JLabel> stockValueLabels = new ArrayList<>();
 
     private PlayerSocketClient client;
 
@@ -176,12 +178,63 @@ public class GameFrame extends JFrame implements ActionListener
             buttonPanels.add(buttonPane1);
         }
         for(JPanel panel : buttonPanels)cardButtonPane.add(panel);
-        //Create a yellow label to put in the content pane.
-        JLabel mainContent = new JLabel();
-        mainContent.setOpaque(true);
-        mainContent.setBackground(new Color(248, 213, 131));
-        mainContent.setPreferredSize(new Dimension(gW, gH));
         gamePanel.add(cardButtonPane);
+        //Create a yellow label to put in the content pane.
+        JPanel mainContent = new JPanel();
+        mainContent.setOpaque(true);
+        mainContent.setBackground(new Color(112, 113, 161));
+        mainContent.setPreferredSize(new Dimension(gW, gH));
+
+        for(Company company : player.getStocks().keySet())
+        {
+            JButton buyStockButton = new JButton("BUY");
+            buyStockButton.addActionListener(this);
+            buyStockButton.setBackground(new Color(255, 255, 255));
+            buyStockButton.setMaximumSize(new Dimension(100, 100));
+            buyStockButton.setVisible(true);
+            buyStockButtons.add(buyStockButton);
+
+            JButton sellStockButton = new JButton("SELL");
+            sellStockButton.addActionListener(this);
+            sellStockButton.setBackground(new Color(255, 255, 255));
+            sellStockButton.setMaximumSize(new Dimension(100,100));
+            sellStockButton.setVisible(true);
+            sellStockButtons.add(sellStockButton);
+
+            JLabel stockNrUnitLabel = new JLabel(player.getStocks().get(company).toString());
+            stockNrUnitLabel.setMaximumSize(new Dimension(150, 0));
+            stockNrUnitLabel.setPreferredSize(new Dimension(0, 50));
+            stockNrUnitLabel.setBackground(new Color(255, 255, 255));
+            stockNrUnitLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+            stockNrUnitLabel.setVisible(true);
+            stockUnitNrLabels.add(stockNrUnitLabel);
+
+            JLabel stockValueLabel = new JLabel(company.getStockValue() +"");
+            stockValueLabel.setMaximumSize(new Dimension(150,50));
+            stockValueLabel.setBackground(Color.gray);
+            stockValueLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            stockValueLabel.setVisible(true);
+            stockValueLabels.add(stockValueLabel);
+
+            JLabel compLabel = new JLabel(company.getName(), SwingConstants.CENTER);
+            compLabel.setMaximumSize(new Dimension(150, 0));
+            compLabel.setPreferredSize(new Dimension(0, 50));
+            compLabel.setVisible(true);
+
+            JPanel stockButtonsPane1 = new JPanel();
+
+            stockButtonsPane1.setLayout(new BoxLayout(stockButtonsPane1, BoxLayout.Y_AXIS));
+            stockButtonsPane1.add(Box.createVerticalGlue());
+            stockButtonsPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            stockButtonsPane1.add(compLabel);
+            stockButtonsPane1.add(buyStockButton);
+            stockButtonsPane1.add(Box.createRigidArea(new Dimension(10, 10)));
+            stockButtonsPane1.add(stockNrUnitLabel);
+            stockButtonsPane1.add(Box.createRigidArea(new Dimension(10, 10)));
+            stockButtonsPane1.add(sellStockButton);
+            stockButtonsPane1.add(stockValueLabel);
+            mainContent.add(stockButtonsPane1);
+        }
 
         MainFrame.getContentPane().add(gamePanel, BorderLayout.NORTH);
         MainFrame.getContentPane().add(mainContent, BorderLayout.CENTER);
@@ -193,28 +246,20 @@ public class GameFrame extends JFrame implements ActionListener
     }
 
     /**
-     * Updates companies and player and then resets data.
-     * @param companies
-     * @param player
-     */
-    public void setData(List<Company> companies, Player player)
-    {
-        while(companies==null ){
-            client.getGameState();
-            companies = client.getCompaniesInPlay();
-            player = client.getPlayer();
-        }
-        this.companies = companies;
-        this.player = player;
-        setData();
-    }
-    /**
      * Sets the data back.
      * Uses the data already stored.
      */
     public void setData()
     {
+//        while(companies==null ){
+//            client.getGameState();
+            companies = client.getCompaniesInPlay();
+            player = client.getPlayer();
+//        }
+        this.companies = companies;
+        this.player = player;
 
+        //actually set in the data
         if(plusVoteButtons.isEmpty())
                 renderGameObjects();
         String cardstates = "";
@@ -269,7 +314,7 @@ public class GameFrame extends JFrame implements ActionListener
             {
                 client.playerActed();
                 while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
-                setData(client.getCompaniesInPlay(), client.getPlayer());
+                setData();
                 System.out.println("Player finished turn.");
             }
         }else
@@ -281,7 +326,7 @@ public class GameFrame extends JFrame implements ActionListener
                 client.joinGame();
                 while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
                 setClient(client);
-                setData(client.getCompaniesInPlay(), client.getPlayer());
+                setData();
             }catch (ConnectException cn)
             {
                 JOptionPane.showMessageDialog(this, "Warning: failed to join game. Try starting a new server instead.", "ERROR ", JOptionPane.ERROR_MESSAGE);
