@@ -222,4 +222,8 @@ public class GameState implements Serializable, GameConnection
     public String getSocketName() {
         return socketName;
     }
+
+    public void setNrPlayers(int nrPlayers) {
+        this.nrPlayers = nrPlayers;
+    }
 }

@@ -45,6 +45,8 @@ public class GameFrame extends JFrame implements ActionListener
     private Map<Company,JLabel> cardLabels = new HashMap<>();
     private Map<Company,JLabel> stockUnitNrLabels = new HashMap<>();
     private Map<Company,JLabel> stockValueLabels = new HashMap<>();
+    JLabel money;
+    JLabel moneySUM;
 
     private PlayerSocketClient client;
 
@@ -243,7 +245,18 @@ public class GameFrame extends JFrame implements ActionListener
             stockButtonsPane1.add(stockValueLabel);
             mainContent.add(stockButtonsPane1);
         }
-
+        money = new JLabel("Money:");
+        money.setSize(new Dimension(100, 50));
+        money.setOpaque(true);
+        money.setBackground(Color.WHITE);
+        money.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        money.setVisible(true);
+        moneySUM = new JLabel(player.getMoney()+"");
+        moneySUM.setSize(new Dimension(100, 50));
+        moneySUM.setBorder(BorderFactory.createLineBorder(Color.green));
+        moneySUM.setVisible(true);
+        mainContent.add(money);
+        mainContent.add(moneySUM);
         MainFrame.getContentPane().add(gamePanel, BorderLayout.NORTH);
         MainFrame.getContentPane().add(mainContent, BorderLayout.CENTER);
         gamePanel.setVisible(true);
@@ -288,6 +301,7 @@ public class GameFrame extends JFrame implements ActionListener
                 stockUnitNrLabels.get(comp).setText(player.getStocks().get(comp).toString());
                 stockValueLabels.get(comp).setText(comp.getStockValue()+"");
             }
+            moneySUM.setText(player.getMoney()+"");
         }
     }
     /**
@@ -314,7 +328,7 @@ public class GameFrame extends JFrame implements ActionListener
     {
         if (e.getSource().equals(startNew))
         {
-           JFrame newGameframe = new StartGameFrame(this);
+           new StartGameFrame(this);
            System.out.println("Starting a new game...");
         }else
         if(e.getSource().equals(endTurn))
@@ -322,8 +336,9 @@ public class GameFrame extends JFrame implements ActionListener
             if(client != null)
             {
                 client.playerActed();
-                try{client.gameConn.playerActed(client.getName());}catch(UnexpectedException ue){ue.printStackTrace();};
-                setData();
+                try{client.gameConn.setNrPlayers(1);//just change so it can update properly on this end. Not ideal, but as long as it works...
+                    client.gameConn.playerActed(client.getName());}catch(UnexpectedException ue){ue.printStackTrace();};
+                if(client.gameConn.isNotFinished())setData();
                 System.out.println("Player finished turn.");
             }
         }else
