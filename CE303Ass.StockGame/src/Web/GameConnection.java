@@ -95,6 +95,13 @@ public interface GameConnection
     void voteCard(@WebParam String companyName, @WebParam int vote);
 
     /**
+     * Updates the player using his name.
+     * @param player
+     */
+    @WebMethod
+    public void updatePlayer(Player player);
+
+    /**
      * Allows the player to trade stock.
      * uses its own object.
      * @param name - the name of the player.

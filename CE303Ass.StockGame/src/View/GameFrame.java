@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.*;
 import java.util.List;
@@ -131,7 +132,10 @@ public class GameFrame extends JFrame implements ActionListener
     {
         gamePanel = new JPanel();
         if(player ==null)
-            player=client.getPlayer();
+            try{
+            player=client.askForPlayer();}
+            catch (IOException | ClassNotFoundException ex){JOptionPane.showMessageDialog(this, "Error. Could not retrieve new player from server.", "ERROR ", JOptionPane.ERROR_MESSAGE);
+            }
         for(Company company: companies)
         {
             JButton voteYesBtn = new JButton("YES");
@@ -334,36 +338,35 @@ public class GameFrame extends JFrame implements ActionListener
                 JOptionPane.showMessageDialog(this, "Warning: failed to join game. Try starting a new server instead.", "ERROR ", JOptionPane.ERROR_MESSAGE);
             }
         }
-        for (int i=0;i<plusVoteButtons.size();i++)
+        for (Company comp : companies)
         {
-            if(e.getSource().equals(plusVoteButtons.get(i)))
+            if(e.getSource().equals(plusVoteButtons.get(comp)))
             {
-                getClient().voteCard(companies.get(i).getName(),1);
+                getClient().voteCard(comp.getName(),1);
                 System.out.println("Voted YES!");
             }
-            else if (e.getSource().equals(negativeVoteButtons.get(i)))
+            else
+            if (e.getSource().equals(negativeVoteButtons.get(comp)))
             {
-                getClient().voteCard(companies.get(i).getName(), -1);
+                getClient().voteCard(comp.getName(), -1);
                 System.out.println("Voted NO!");
             }
-        }
-        for(int i = 0; i< buyStockButtons.size(); i++)
-        {
-            if(e.getSource().equals(buyStockButtons.get(i)))
+            else
+            if(e.getSource().equals(buyStockButtons.get(comp)))
             {
                 Player player = client.getPlayer();
-                player.modifyStock(client.getCompaniesInPlay().get(i), +1);
+                player.modifyStock(comp, +1);
                 getClient().tradeStock(client.getName(), player);
                 setData();
-                System.out.println("Bought stock for: "+client.getCompaniesInPlay().get(i));
+                System.out.println("Bought stock for: "+comp.getName());
             }
-            else if (e.getSource().equals(sellStockButtons.get(i)))
+            else if (e.getSource().equals(sellStockButtons.get(comp)))
             {
                 Player player = client.getPlayer();
-                player.modifyStock(client.getCompaniesInPlay().get(i), -1);
+                player.modifyStock(comp, -1);
                 getClient().tradeStock(client.getName(), player);
                 setData();
-                System.out.println("Sold stock for: "+ client.getCompaniesInPlay().get(i));
+                System.out.println("Sold stock for: "+ comp.getName());
             }
         }
 
@@ -377,7 +380,7 @@ public class GameFrame extends JFrame implements ActionListener
             {
                 if (frame.getClient().newStateReceived)
                 {
-                    frame.setData();
+                    //frame.setData();
                     frame.repaint();
                     frame.getClient().newStateReceived = false;
                 }

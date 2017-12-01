@@ -9,5 +9,7 @@ public enum RequestType implements Serializable
     START_GAME,
     JOIN_GAME,
     VOTE,
+    PLAYER_REQ,
+    STATE_REQ,
     TRADE
 }

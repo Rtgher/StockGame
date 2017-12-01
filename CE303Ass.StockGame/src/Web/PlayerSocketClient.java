@@ -91,7 +91,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public List<Company> getCompaniesInPlay()
     {
-        return gameConn.getCompanies();
+        return getGameState().getCompanies();
     }
 
     /**
@@ -144,12 +144,6 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         while(gameConn.isNotFinished())
         {
 
-//            GameRequest request = new GameRequest(RequestType.MESSAGE);
-//            request.setName(name);
-//            request.setMessage(name + "IS ALIVE");
-//            sendRequest(request);
-//
-//            getGameState();
         }
         getGameState();
         String winnerName="";
@@ -195,8 +189,12 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
     {
         try
         {
+            GameRequest request = new GameRequest(RequestType.STATE_REQ);
+            request.setName(name);
+            sendRequest(request);
+            //get the new GameState
             gameConn = (GameState)fromServer.readObject();
-            while(gameConn ==null) gameConn = (GameState)fromServer.readObject();
+            System.out.println("Received a GAMESTATE from server.");
             if(gameConn != null) {
                 gameConn.setSocketName(name);
                 newStateReceived =  true;
@@ -229,6 +227,22 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         GameRequest request = new GameRequest(RequestType.TRADE);
         request.setName(name);
         request.setPlayer(player);
+    }
+
+    /**
+     * A request to ask for the player directly.
+     * @return -the new player.
+     */
+    public Player askForPlayer() throws ClassNotFoundException,IOException
+    {
+        //ask for player
+        GameRequest request = new GameRequest(RequestType.PLAYER_REQ);
+        request.setName(name);
+        sendRequest(request);
+        //read player
+        Player player = (Player) fromServer.readObject();
+        gameConn.updatePlayer(player);
+        return player;
     }
 
     /**

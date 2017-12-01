@@ -92,9 +92,17 @@ public class GameState implements Serializable, GameConnection
     public void playerActed(String name) throws UnexpectedException
     {
         Player playerWhoActed = players.get(name);
-        if(playersActed.add(playerWhoActed);
+        if(!playersActed.contains(playerWhoActed))
+            playersActed.add(playerWhoActed);
         resolveRound();
     }
+
+    /** Updates the player using its name. */
+    public void updatePlayer(Player player)
+    {
+        players.put(player.getName(), player);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -183,6 +191,8 @@ public class GameState implements Serializable, GameConnection
      */
     public void resolveRound() throws UnexpectedException
     {
+        String stateround="";
+
         if(playersActed.size() == players.size())
         {
             System.out.println("All players acted! Resolving round...");
@@ -194,9 +204,11 @@ public class GameState implements Serializable, GameConnection
                 if(!company.isDeckEmpty())
                 {
                     company.resolveCard(company.getTopCard());
+                    stateround+= " [{0}]".replace("{0}",company.getTopCard().getModifier()+"");
                 }
             }
         }
+        System.out.println("VOte state is: "+stateround);
     }
 
     public ArrayList<Bot> getBots() {

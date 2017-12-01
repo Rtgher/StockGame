@@ -50,7 +50,7 @@ public class SocketConnection implements Runnable
     {
         while(isRunning) {
             try {
-                sendGameStateToClient();
+                //sendGameStateToClient();
                 readRequestsFromClient();
                 if(!server.game.isNotFinished())
                     isRunning = false;
@@ -162,6 +162,12 @@ public class SocketConnection implements Runnable
                 break;
             case MESSAGE:
                 System.out.println(request.getMessage());
+                break;
+            case PLAYER_REQ:
+                toClient.writeObject(server.game.getPlayerByName(request.getName()));
+                break;
+            case STATE_REQ:
+                sendGameStateToClient();
                 break;
             default:
                 throw new ClassNotFoundException("Invalid type of request.");
