@@ -109,5 +109,8 @@ public interface GameConnection
      */
     @WebMethod
     void tradeStock(@WebParam String name,@WebParam Player player);
+    /** Resolve the round */
+    @WebMethod
+    public void resolveRound() throws UnexpectedException;
 
 }

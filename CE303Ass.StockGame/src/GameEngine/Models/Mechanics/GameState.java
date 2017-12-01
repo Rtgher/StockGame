@@ -65,6 +65,7 @@ public class GameState implements Serializable, GameConnection
      * Getter for the whole Map of players.
      * @return - HasMap players.
      */
+    @Override
     public Map<String, Player> getPlayers() {
         return players;
     }
@@ -74,6 +75,7 @@ public class GameState implements Serializable, GameConnection
      * @param name - the name of the player.
      * @return true if operation successfull. False otherwise.
      */
+    @Override
     public boolean addPlayer(String name)
     {
         Player player = new Player(name, getCompanies());
@@ -142,6 +144,7 @@ public class GameState implements Serializable, GameConnection
      * @param name -  the name of the player.
      * @return player - the player object.
      */
+    @Override
     public Player getPlayerByName(String name)
     {
         return players.get(name);
@@ -151,6 +154,7 @@ public class GameState implements Serializable, GameConnection
      * Getter for the companies in the game.
      * @return -ArrayList of Companies
      */
+    @Override
     public ArrayList<Company> getCompanies() {
         return companies;
     }
@@ -161,6 +165,7 @@ public class GameState implements Serializable, GameConnection
      * @param maxRounds - the maximum number of round for this game.
      * @return true if game is still running - false if the game has ended.
      */
+    @Override
     public boolean isNotFinished( int maxRounds )
     {
         if(this.round < maxRounds +1 )return true;
@@ -171,6 +176,7 @@ public class GameState implements Serializable, GameConnection
      * {@inheritDoc}
      * @return
      */
+    @Override
     public boolean isNotFinished()
     {
         if(this.round < maxRounds) return true;
@@ -181,6 +187,7 @@ public class GameState implements Serializable, GameConnection
      * Asks if enough players have joined.
      * @return - true if yes, false otherwise.
      */
+    @Override
     public boolean isFull()
     {
         return players.size() == nrPlayers;
@@ -189,16 +196,20 @@ public class GameState implements Serializable, GameConnection
     /**
      * Resolves teh current round, and progresses the game.
      */
+    @Override
     public void resolveRound() throws UnexpectedException
     {
         String stateround="";
 
-        if(playersActed.size() == players.size())
+        if((playersActed.size() == nrPlayers) || nrPlayers ==0)
         {
             System.out.println("All players acted! Resolving round...");
             round ++;
             playersActed = new ArrayList<>();
-            for (Bot bot : bots) bot.act(companies); //allows the bots to act.
+            for (Bot bot : bots)
+            {
+                bot.act(companies); //allows the bots to act.
+            }
             for (Company company : companies)
             {
                 if(!company.isDeckEmpty())

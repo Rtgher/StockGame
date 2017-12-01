@@ -29,7 +29,7 @@ public class Bot extends Player
     {
         for(Company company: companies)
         {
-            if(company.getStockValue() > 100)
+            if(company.getStockValue() > 90)
             {
                 if( getStockForCompany(company) > 0 )
                 modifyStock(company, -1);
@@ -42,7 +42,7 @@ public class Bot extends Player
         }
         //vote randomly.
         companies.get(new Random().nextInt(5)).getTopCard().votes(1);
-        companies.get(new Random().nextInt(5)).getTopCard().votes(-1);
+        companies.get(new Random().nextInt(5)).getTopCard().votes(1);
         System.out.println("Bot {0} has acted. His cash is {1}".replace("{0}", getName()).replace("{1}", getMoney()+""));
     }
 
