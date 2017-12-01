@@ -68,10 +68,6 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         GameRequest request =  new GameRequest(RequestType.JOIN_GAME);
         request.setName(name);
         sendRequest(request);
-        while(gameConn == null)
-        {
-            getGameState();
-        }
     }
 
     /**
@@ -95,7 +91,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public List<Company> getCompaniesInPlay()
     {
-        return getGameState().getCompanies();
+        return gameConn.getCompanies();
     }
 
     /**
@@ -145,16 +141,17 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
      */
     public void run()
     {
-        while(getGameState().isNotFinished())
+        while(gameConn.isNotFinished())
         {
 
-            GameRequest request = new GameRequest(RequestType.MESSAGE);
-            request.setName(name);
-            request.setMessage(name + "IS ALIVE");
-            sendRequest(request);
-
-            getGameState();
+//            GameRequest request = new GameRequest(RequestType.MESSAGE);
+//            request.setName(name);
+//            request.setMessage(name + "IS ALIVE");
+//            sendRequest(request);
+//
+//            getGameState();
         }
+        getGameState();
         String winnerName="";
         for(Player player : gameConn.getPlayers().values())
         {
@@ -184,6 +181,9 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         }
         System.out.println("GAME FINISHED: WINNER IS:" + winnerName);
         JOptionPane.showMessageDialog(null,  "Game Over. Winner is:"+winnerName, "Game finished.", JOptionPane.INFORMATION_MESSAGE);
+        try{
+            server.close();
+        }catch(IOException io){}
 
     }
 
@@ -246,4 +246,7 @@ public class PlayerSocketClient implements PlayerConnection, Runnable
         }
     }
 
+    public String getName() {
+        return name;
+    }
 }

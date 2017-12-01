@@ -61,8 +61,7 @@ public class SocketConnection implements Runnable
         }//on exit
         try {
             System.out.println("Game finished. Closing clients.");
-            sendGameStateToClient();
-            socket.close();
+            while(socket.isConnected())sendGameStateToClient();
         }catch (IOException io)
         {
             io.printStackTrace();
@@ -102,6 +101,7 @@ public class SocketConnection implements Runnable
         }catch (IOException io){
             io.printStackTrace();
         }
+        if(!result)System.out.println("WARNING: Player was refused connection. Player is : "+name);
         return result;
     }
 
@@ -174,7 +174,7 @@ public class SocketConnection implements Runnable
      * Sends the gamestate to the clients.
      * @throws IOException
      */
-    private void sendGameStateToClient() throws IOException
+    private synchronized void sendGameStateToClient() throws IOException
     {
             System.out.println("Sending game game to client + " + socket);
             toClient.writeObject(server.getGame());

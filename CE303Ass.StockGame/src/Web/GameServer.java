@@ -76,7 +76,7 @@ public class GameServer
             Socket client = serverSocket.accept();
             System.out.println("Client connected.");
             SocketConnection gameCon = new SocketConnection(client, this);
-            clientList.add(gameCon);
+
             if(game != null)
             {
                 //start game;
@@ -92,6 +92,7 @@ public class GameServer
     /** Start a new Thread and add it to the connection list */
     private void addConn(SocketConnection gameCon)
     {
+        clientList.add(gameCon);
         Thread newConn = new Thread(gameCon);
         connections.add(newConn);
         newConn.start();

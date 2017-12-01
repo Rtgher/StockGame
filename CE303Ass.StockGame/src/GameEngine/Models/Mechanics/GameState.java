@@ -92,7 +92,7 @@ public class GameState implements Serializable, GameConnection
     public void playerActed(String name) throws UnexpectedException
     {
         Player playerWhoActed = players.get(name);
-        playersActed.add(playerWhoActed);
+        if(playersActed.add(playerWhoActed);
         resolveRound();
     }
 
@@ -122,8 +122,11 @@ public class GameState implements Serializable, GameConnection
     @Override
     public void tradeStock(String name, Player player)
     {
-        players.put(name, player);
-        System.out.println("Player: "+name+" traded stock!");
+        if(!playersActed.contains(getPlayerByName(name)))//allow only if turn hasn't finished.
+        {
+            players.put(name, player);
+            System.out.println("Player: "+name+" traded stock!");
+        }
     }
 
     /**

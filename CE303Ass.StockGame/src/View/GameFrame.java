@@ -25,10 +25,10 @@ public class GameFrame extends JFrame implements ActionListener
     JMenuItem startNew;
     JMenuItem joinGame;
     JCheckBoxMenuItem cbMenuItem;
-    List<JButton> plusVoteButtons = new ArrayList<>();
-    List<JButton> negativeVoteButtons =  new ArrayList();
-    List<JButton> buyStockButtons = new ArrayList<>();
-    List<JButton> sellStockButtons = new ArrayList<>();
+    Map<Company,JButton> plusVoteButtons = new HashMap<>();
+    Map<Company,JButton>  negativeVoteButtons =  new HashMap<>();
+    Map<Company,JButton>  buyStockButtons = new HashMap<>();
+    Map<Company,JButton>  sellStockButtons = new HashMap<>();
     private int gW = 840;
     private int gH = 620;
     private int t = ((int)(gH*0.15));
@@ -39,10 +39,10 @@ public class GameFrame extends JFrame implements ActionListener
     JPanel gamePanel;
     JPanel cardButtonPane;
     List<JPanel> buttonPanels =  new ArrayList<>(5);
-    private List<JLabel> companyLabels =  new ArrayList<>();
-    private List<JLabel> cardLabels = new ArrayList<>();
-    private List<JLabel> stockUnitNrLabels = new ArrayList<>();
-    private List<JLabel> stockValueLabels = new ArrayList<>();
+    private Map<Company,JLabel> companyLabels =  new HashMap<>();
+    private Map<Company,JLabel> cardLabels = new HashMap<>();
+    private Map<Company,JLabel> stockUnitNrLabels = new HashMap<>();
+    private Map<Company,JLabel> stockValueLabels = new HashMap<>();
 
     private PlayerSocketClient client;
 
@@ -130,7 +130,8 @@ public class GameFrame extends JFrame implements ActionListener
     private void renderGameObjects()
     {
         gamePanel = new JPanel();
-
+        if(player ==null)
+            player=client.getPlayer();
         for(Company company: companies)
         {
             JButton voteYesBtn = new JButton("YES");
@@ -138,7 +139,7 @@ public class GameFrame extends JFrame implements ActionListener
             voteYesBtn.setBackground(new Color(255, 255, 255));
             voteYesBtn.setMaximumSize(new Dimension(100, 100));
             voteYesBtn.setVisible(true);
-            plusVoteButtons.add(voteYesBtn);
+            plusVoteButtons.put(company, voteYesBtn);
 
 
             JButton voteNoBtn = new JButton("NO");
@@ -146,12 +147,12 @@ public class GameFrame extends JFrame implements ActionListener
             voteNoBtn.setBackground(new Color(255, 255, 255));
             voteNoBtn.setMaximumSize(new Dimension(100, 100));
             voteNoBtn.setVisible(true);
-            negativeVoteButtons.add(voteNoBtn);
+            negativeVoteButtons.put(company,voteNoBtn);
 
 
             JLabel cardModifierLbl = new JLabel( (company.getTopCard().getModifier() > 0 ? "+" : "") + company.getTopCard().getModifier(),
                     SwingConstants.CENTER);
-            cardLabels.add(cardModifierLbl);
+            cardLabels.put(company,cardModifierLbl);
             cardModifierLbl.setMaximumSize(new Dimension(150, 0));
             cardModifierLbl.setPreferredSize(new Dimension(0, 50));
             cardModifierLbl.setBackground(new Color(255, 255, 255));
@@ -162,7 +163,7 @@ public class GameFrame extends JFrame implements ActionListener
             compLabel.setMaximumSize(new Dimension(150, 0));
             compLabel.setPreferredSize(new Dimension(0, 50));
             compLabel.setVisible(true);
-            companyLabels.add(compLabel);
+            companyLabels.put(company,compLabel);
 
             JPanel buttonPane1 = new JPanel();
 
@@ -185,21 +186,21 @@ public class GameFrame extends JFrame implements ActionListener
         mainContent.setBackground(new Color(112, 113, 161));
         mainContent.setPreferredSize(new Dimension(gW, gH));
 
-        for(Company company : player.getStocks().keySet())
+        for(Company company : companies)
         {
             JButton buyStockButton = new JButton("BUY");
             buyStockButton.addActionListener(this);
             buyStockButton.setBackground(new Color(255, 255, 255));
             buyStockButton.setMaximumSize(new Dimension(100, 100));
             buyStockButton.setVisible(true);
-            buyStockButtons.add(buyStockButton);
+            buyStockButtons.put(company,buyStockButton);
 
             JButton sellStockButton = new JButton("SELL");
             sellStockButton.addActionListener(this);
             sellStockButton.setBackground(new Color(255, 255, 255));
             sellStockButton.setMaximumSize(new Dimension(100,100));
             sellStockButton.setVisible(true);
-            sellStockButtons.add(sellStockButton);
+            sellStockButtons.put(company,sellStockButton);
 
             JLabel stockNrUnitLabel = new JLabel(player.getStocks().get(company).toString());
             stockNrUnitLabel.setMaximumSize(new Dimension(150, 0));
@@ -207,14 +208,14 @@ public class GameFrame extends JFrame implements ActionListener
             stockNrUnitLabel.setBackground(new Color(255, 255, 255));
             stockNrUnitLabel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
             stockNrUnitLabel.setVisible(true);
-            stockUnitNrLabels.add(stockNrUnitLabel);
+            stockUnitNrLabels.put(company,stockNrUnitLabel);
 
             JLabel stockValueLabel = new JLabel(company.getStockValue() +"");
             stockValueLabel.setMaximumSize(new Dimension(150,50));
             stockValueLabel.setBackground(Color.gray);
             stockValueLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             stockValueLabel.setVisible(true);
-            stockValueLabels.add(stockValueLabel);
+            stockValueLabels.put(company,stockValueLabel);
 
             JLabel compLabel = new JLabel(company.getName(), SwingConstants.CENTER);
             compLabel.setMaximumSize(new Dimension(150, 0));
@@ -232,6 +233,8 @@ public class GameFrame extends JFrame implements ActionListener
             stockButtonsPane1.add(stockNrUnitLabel);
             stockButtonsPane1.add(Box.createRigidArea(new Dimension(10, 10)));
             stockButtonsPane1.add(sellStockButton);
+            stockButtonsPane1.add(Box.createRigidArea(new Dimension(10, 10)));
+            stockButtonsPane1.add(Box.createRigidArea(new Dimension(10, 10)));
             stockButtonsPane1.add(stockValueLabel);
             mainContent.add(stockButtonsPane1);
         }
@@ -251,13 +254,9 @@ public class GameFrame extends JFrame implements ActionListener
      */
     public void setData()
     {
-//        while(companies==null ){
-//            client.getGameState();
-            companies = client.getCompaniesInPlay();
-            player = client.getPlayer();
-//        }
-        this.companies = companies;
-        this.player = player;
+        client.getGameState();
+        companies = client.getCompaniesInPlay();
+        player = client.getPlayer();
 
         //actually set in the data
         if(plusVoteButtons.isEmpty())
@@ -265,11 +264,11 @@ public class GameFrame extends JFrame implements ActionListener
         String cardstates = "";
         if(companies!=null && companies.size()>0)
         {
-            for(int i=0; i<companies.size();i++)
+            for(Company comp: companies)
             {
-                companyLabels.get(i).setText(companies.get(i).getName());
-                cardLabels.get(i).setText((companies.get(i).getTopCard().getModifier()>0?"+":"")+companies.get(i).getTopCard().getModifier());
-                cardstates += " [{0}]".replace("{0}", companies.get(i).getTopCard().getModifier() + "");
+                companyLabels.get(comp).setText(comp.getName());
+                cardLabels.get(comp).setText((comp.getTopCard().getModifier()>0?"+":"")+comp.getTopCard().getModifier());
+                cardstates += " [{0}]".replace("{0}", comp.getTopCard().getModifier() + "");
             }
             System.out.println("Printing cards: " +cardstates);
         }
@@ -279,7 +278,11 @@ public class GameFrame extends JFrame implements ActionListener
         }
         if(player!=null)
         {
-            this.player = player;
+            for(Company comp : player.getStocks().keySet())
+            {
+                stockUnitNrLabels.get(comp).setText(player.getStocks().get(comp).toString());
+                stockValueLabels.get(comp).setText(comp.getStockValue()+"");
+            }
         }
     }
     /**
@@ -299,6 +302,7 @@ public class GameFrame extends JFrame implements ActionListener
     {
         this.client = client;
         playerThread = new Thread(client);
+        playerThread.start();
     }
 
     public void actionPerformed(ActionEvent e)
@@ -313,7 +317,6 @@ public class GameFrame extends JFrame implements ActionListener
             if(client != null)
             {
                 client.playerActed();
-                while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
                 setData();
                 System.out.println("Player finished turn.");
             }
@@ -324,8 +327,7 @@ public class GameFrame extends JFrame implements ActionListener
             {
                 PlayerSocketClient client = new PlayerSocketClient();
                 client.joinGame();
-                while(client.getGameState()==null)try{Thread.sleep(100);}catch (InterruptedException ie){};
-                setClient(client);
+                this.client = client;
                 setData();
             }catch (ConnectException cn)
             {
@@ -343,6 +345,25 @@ public class GameFrame extends JFrame implements ActionListener
             {
                 getClient().voteCard(companies.get(i).getName(), -1);
                 System.out.println("Voted NO!");
+            }
+        }
+        for(int i = 0; i< buyStockButtons.size(); i++)
+        {
+            if(e.getSource().equals(buyStockButtons.get(i)))
+            {
+                Player player = client.getPlayer();
+                player.modifyStock(client.getCompaniesInPlay().get(i), +1);
+                getClient().tradeStock(client.getName(), player);
+                setData();
+                System.out.println("Bought stock for: "+client.getCompaniesInPlay().get(i));
+            }
+            else if (e.getSource().equals(sellStockButtons.get(i)))
+            {
+                Player player = client.getPlayer();
+                player.modifyStock(client.getCompaniesInPlay().get(i), -1);
+                getClient().tradeStock(client.getName(), player);
+                setData();
+                System.out.println("Sold stock for: "+ client.getCompaniesInPlay().get(i));
             }
         }
 
