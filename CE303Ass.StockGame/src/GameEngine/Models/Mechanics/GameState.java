@@ -76,7 +76,7 @@ public class GameState implements Serializable, GameConnection
      */
     public boolean addPlayer(String name)
     {
-        Player player = new Player(name);
+        Player player = new Player(name, getCompanies());
         if (players.get(name)==null)
         {
             players.put(name, player);
